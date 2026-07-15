@@ -1,0 +1,75 @@
+project:
+  name: mlb_full_mts_tjs
+  random_seed: 42
+
+paths:
+  tjs_sheet_csv_url: "https://docs.google.com/spreadsheets/d/1gQujXQQGOVNaiuwSN680Hq-FDVsCwvN-3AazykOBON0/export?format=csv&gid=0"
+  raw_dir: "data/raw"
+  interim_dir: "data/interim"
+  processed_dir: "data/processed"
+  reports_dir: "reports"
+
+registry:
+  min_year: 2015
+  max_year: 2024
+  position_filter: "P"
+  level_filter: "MLB"
+  require_mlbamid: true
+
+statcast:
+  lookback_days_before_surgery: 400
+  end_buffer_days_after_surgery: 0
+  cache_enabled: true
+  save_format: "parquet"
+
+windows:
+  window_size: 10
+  positive_anchor: "last_appearance_before_surgery"
+  healthy_exclusion_days_before_tjs: 365
+  healthy_exclusion_days_after_tjs: 365
+  min_appearances_for_window: 10
+
+features:
+  pitch_types_fastball: ["FF", "SI", "FC"]
+  pitch_types_breaking: ["SL", "ST", "CU", "KC"]
+  pitch_types_offspeed: ["CH", "FS", "FO", "SC"]
+  mlb_full:
+    - pitch_count_sum_10
+    - pitch_count_mean_10
+    - pitch_count_max_10
+    - tbf_sum_10
+    - rest_mean_10
+    - rest_min_10
+    - release_speed_mean_10
+    - release_speed_slope_10
+    - fb_release_speed_mean_10
+    - fb_release_speed_slope_10
+    - release_spin_rate_mean_10
+    - release_spin_rate_slope_10
+    - fb_release_spin_rate_mean_10
+    - release_extension_mean_10
+    - release_extension_slope_10
+    - release_pos_x_std_10
+    - release_pos_z_std_10
+    - pfx_x_mean_10
+    - pfx_z_mean_10
+    - zone_rate_10
+    - whiff_rate_10
+    - called_strike_rate_10
+    - bb_rate_10
+    - k_rate_10
+    - hr_rate_10
+    - ff_share_10
+    - si_share_10
+    - fc_share_10
+    - sl_share_10
+    - st_share_10
+    - cu_share_10
+    - ch_share_10
+    - fs_share_10
+
+mts:
+  covariance: "oas"
+  eps: 1.0e-6
+  feature_set: "mlb_full"
+  threshold_percentile: 95

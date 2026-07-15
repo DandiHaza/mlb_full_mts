@@ -1,0 +1,26 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local data and generated artifacts
+data/raw/
+data/interim/
+data/processed/
+data/**/*.parquet
+data/**/*.csv
+
+# Generated reports can be large or regenerated locally.
+reports/*.csv
+reports/*.json
+
+# Local logs and scratch files
+*.log
+*.tmp
+*_tmp.html
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
