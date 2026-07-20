@@ -364,3 +364,92 @@ alert가 떴다 =
 ```
 
 다만 이 수치는 최종 예측 성능으로 해석하면 안 된다. 현재는 연구용 retrospective analysis이며, 미래 시점 예측 검증이나 season holdout 검증은 아직 충분하지 않다.
+
+## 11. 실제 선수 단위 출력은 어떻게 보는가?
+
+위의 결과는 전체 window를 대상으로 모델이 어느 정도 신호를 잡는지 확인한 것이다. 실제로 팀원이 궁금해할 질문은 보통 다음에 더 가깝다.
+
+```text
+특정 선수의 최근 10경기 패턴은
+healthy reference에 가까운가?
+TJS pre-surgery reference에 가까운가?
+alert 기준을 넘었는가?
+```
+
+이를 보기 위해 현재 repository에는 선수별 리포트 스크립트가 추가되어 있다.
+
+```powershell
+.venv\Scripts\python.exe src\09_report_player_risk.py --config config\config.yaml --player-name Sabathia --top-n 5
+```
+
+선수 이름은 중복될 수 있으므로, 가능하면 MLBAM ID로 조회하는 것이 더 정확하다.
+
+```powershell
+.venv\Scripts\python.exe src\09_report_player_risk.py --config config\config.yaml --mlbamid 282332 --top-n 5
+```
+
+이 스크립트는 `data/processed/mts_scores.csv`를 읽고, 해당 선수의 최신 window와 risk가 높았던 window들을 보여준다.
+
+출력에서 가장 중요한 값은 다음 네 가지다.
+
+```text
+D_H:
+healthy reference와의 거리
+
+D_T:
+TJS pre-surgery reference와의 거리
+
+risk_tjs:
+healthy보다 TJS reference에 상대적으로 얼마나 가까운지 나타내는 점수
+
+alert:
+risk_tjs가 기준선을 넘었는지 여부
+```
+
+해석은 다음처럼 하면 된다.
+
+```text
+D_H < D_T:
+healthy reference에 더 가까운 window
+
+D_T < D_H:
+TJS pre-surgery reference에 더 가까운 window
+
+risk_tjs가 높음:
+TJS pre-surgery reference에 상대적으로 더 가까움
+
+alert = True:
+현재 기준선 이상이므로 검토 필요
+
+alert = False:
+현재 기준선 미만
+```
+
+예를 들어 어떤 선수의 최신 window가 다음과 같다고 하자.
+
+```text
+D_H = 5.314
+D_T = 6.881
+risk_tjs = -0.258
+alert = False
+```
+
+이 경우 `D_H`가 `D_T`보다 작으므로 healthy reference에 더 가깝다. 또한 `alert=False`이므로 현재 기준에서는 검토 대상 window로 표시되지 않는다.
+
+반대로 다음과 같은 경우라면 다르게 해석한다.
+
+```text
+D_H = 16.24
+D_T = 15.25
+risk_tjs = 0.063
+alert = True
+```
+
+이 경우 `D_T`가 `D_H`보다 작으므로 TJS pre-surgery reference에 더 가깝다. 그리고 `alert=True`이므로 추가 검토가 필요한 window로 표시된다.
+
+다만 여기서도 가장 중요한 주의점은 같다.
+
+```text
+alert=True는 "이 선수가 TJS를 받을 것이다"라는 뜻이 아니다.
+alert=True는 "이 최근 10경기 window가 TJS 수술 전 reference와 상대적으로 비슷하므로 검토가 필요하다"는 뜻이다.
+```
