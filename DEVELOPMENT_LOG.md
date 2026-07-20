@@ -900,3 +900,27 @@ Holdout 결과:
 - `window_features.csv`는 2018 control 추가 후 최신화됐습니다.
 - 이번 holdout 결과는 `holdout_2018_*` 파일을 기준으로 해석해야 합니다.
 - 메인 `mts_scores.csv`와 `mts_summary.json`은 별도 pooled scoring 산출물이므로, 2018 control까지 포함한 메인 결과로 갱신하려면 `src/05_run_mts.py`를 다시 실행해야 합니다.
+
+## 추가 진행: 특정 선수 MTS risk 리포트 스크립트 추가
+
+날짜: 2026-07-20
+
+팀원이 실제 선수 단위로 결과를 해석할 수 있도록 `src/09_report_player_risk.py`를 추가했습니다.
+
+사용 예시:
+
+```powershell
+.venv\Scripts\python.exe src\09_report_player_risk.py --config config\config.yaml --player-name Sabathia --top-n 5
+.venv\Scripts\python.exe src\09_report_player_risk.py --config config\config.yaml --mlbamid 282332 --top-n 5
+```
+
+스크립트는 `data/processed/mts_scores.csv`를 읽고 다음 정보를 출력합니다.
+
+- 최신 10경기 window
+- `D_H`: healthy reference와의 거리
+- `D_T`: TJS pre-surgery reference와의 거리
+- `risk_tjs`: TJS reference에 상대적으로 가까운 정도
+- `alert`: 현재 기준선 초과 여부
+- 해당 선수의 risk 상위 window 목록
+
+조회 결과는 기본적으로 `reports/player_risk_<검색어>.csv`에도 저장됩니다.

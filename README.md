@@ -93,6 +93,30 @@ pr_auc: 0.3439362931019851
 
 이 결과는 pipeline end-to-end 동작 확인용입니다. Healthy reference가 2019년 4~6월 세 달치 league chunk에 기반하므로 이전보다 안정적이지만, 연구용 해석이나 threshold 판단에는 아직 추가 검증이 필요합니다.
 
+## 특정 선수 Risk 리포트
+
+`data/processed/mts_scores.csv`가 생성된 뒤에는 특정 선수의 최신 window와 high-risk window를 바로 확인할 수 있습니다.
+
+```powershell
+.venv\Scripts\python.exe src\09_report_player_risk.py --config config\config.yaml --player-name Sabathia --top-n 5
+```
+
+정확한 조회가 필요하면 player name 대신 MLBAM ID를 쓰는 편이 안전합니다.
+
+```powershell
+.venv\Scripts\python.exe src\09_report_player_risk.py --config config\config.yaml --mlbamid 282332 --top-n 5
+```
+
+출력 해석:
+
+```text
+D_H가 작다 = healthy reference에 가까움
+D_T가 작다 = TJS pre-surgery reference에 가까움
+risk_tjs가 높다 = TJS reference에 상대적으로 가까움
+alert=True = 기준선을 넘었으므로 검토 필요
+alert=False = 현재 기준선 미만
+```
+
 ## Full Run 주의
 
 Statcast full-season 데이터를 한 번에 받지 마세요. 다운로드가 느리고, 파일이 커질 수 있으며, rate limit에 걸릴 수 있습니다. 작은 날짜 chunk로 나누어 수집하고, output을 확인하면서 확장하세요. Raw data 파일은 재사용 가능하므로 불필요하게 덮어쓰지 않는 것이 좋습니다.
